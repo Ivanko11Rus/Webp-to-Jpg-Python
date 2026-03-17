@@ -24,6 +24,8 @@ Both versions share the same basic settings. The Overkill version adds an extra 
 2. **Install `colorama` and `send2trash`** – they improve safety (colorful warnings are easier to notice, and the recycle bin lets you recover files if something goes wrong).
 3. **Always work on a copy of your data!** The developer has thoroughly tested all possible configurations, but the risk is not zero. First run the program on a duplicate of your storage, verify everything works as expected, and only then apply it to the original.
 
+> **The most reliable way to avoid mistakes – both yours and the program's – is to always work on a duplicate/copy of your storage, and after successful conversion, simply replace the original storage with the resulting one.**
+
 ---
 
 ## Standard Version (`Webp_To_Jpg_English.py`)
@@ -36,12 +38,35 @@ At the top of the file you'll find:
 input_path = r""          # folder with source WebP files (empty = current folder)
 output_path = r""         # folder for JPG results (empty = creates "converted" subfolder)
 jpg_quality = 85          # JPEG quality (1-100)
+
+# ⚠️ DANGEROUS OPTIONS: Delete original WebP files?
+delete_original = False        # set to True to enable deletion (highly recommended to keep False)
+delete_on_skip = False         # delete source if file skipped due to conflict (only if delete_original=True)
+delete_on_rename = False       # delete source if file renamed due to conflict (only if delete_original=True)
+
+# Deletion method (only used if delete_original=True)
+deletion_method = "recycle"    # "recycle" (send to recycle bin) or "permanent" (delete forever)
+
+# Behavior on name conflict
+on_name_conflict = "ask"       # "skip", "rename", or "ask" (default ask)
 ```
 - **input_path** – path to the folder with WebP files. If left empty, the current folder is used.
 
 - **output_path** – where to save JPGs. If empty, a subfolder converted is created inside the source folder.
 
 - **jpg_quality** – JPEG quality (default 85 – a good balance between size and quality).
+
+- **delete_original** – master switch for deletion. If False, source files are never deleted.
+
+- **delete_on_skip** – when delete_original=True, deletes the source WebP if conversion was skipped (file already exists as JPG). Logically, you may want this True because the existing JPG is considered correct.
+
+- **delete_on_rename** – when delete_original=True, deletes the source WebP if a conflict was resolved by renaming (e.g., (2)). Logically, you may want this True because the file was still converted (just with a different name).
+
+- **deletion_method** – "recycle" (recycle bin, requires send2trash) or "permanent" (irreversible). Recommended "recycle".
+
+- **on_name_conflict** – behavior when a JPG with the same name already exists (see below).
+
+If delete_original = False, then delete_on_skip and delete_on_rename are ignored (even if set to True). The program will warn you about this at startup.
 
 ### What it does
 1. Finds all .webp files in the specified folder.
@@ -89,14 +114,17 @@ overkill_mode = False      # True = scan all subfolders
 exclude_folders = []       # list of folder names or relative paths to exclude
 
 delete_original = False    # delete source WebP after conversion (default False)
-delete_on_skip = False     # delete source WebP when skipped (name conflict) (default False)
+delete_on_skip = False     # delete source WebP when skipped (only if delete_original=True)
+delete_on_rename = False   # delete source WebP when renamed (only if delete_original=True)
 
-deletion_method = "recycle"   # deletion method: "recycle" (recycle bin) or "permanent" (permanent)
+deletion_method = "recycle"   # "recycle" (recycle bin) or "permanent"
 on_recycle_error = "ask"      # action on recycle bin error: "ask", "permanent", "skip", "stop"
 
-save_in_place = False      # True = save JPG next to WebP, False = all into one folder (specified, or into the converted folder if you left the path empty)
+save_in_place = False      # True = save JPG next to WebP, False = all into one folder
 on_name_conflict = "ask"   # "rename", "skip", or "ask" (default ask)
 ```
+delete_on_skip and delete_on_rename work exactly as in the standard version: they only take effect if delete_original = True. Otherwise they are ignored (with a warning).
+
 ### Explanations
 - **overkill_mode** – if True, the program traverses all subfolders inside input_path.
 
@@ -150,7 +178,7 @@ on_name_conflict = "ask"         # ask on conflict
 ```
 
 ### Developer's warnings (for Overkill version)
-> **A story of disaster**
+> **A story of disaster:**
 > The overconfident developer once rushed, enabled recursive scanning and original deletion, not fully remembering his storage structure. Not everything could be recovered. To prevent you from repeating this mistake, the program now:
 > - asks for confirmation after displaying the folder tree;
 > - offers choices on name conflicts;
@@ -193,7 +221,8 @@ The program is distributed under the MIT license. Use at your own risk.
 
 1. **Запускайте программу двойным кликом** (или в командной строке), а не через IDLE – так цветное оформление будет работать корректно.
 2. **Установите `colorama` и `send2trash`** – это повысит безопасность (цветные предупреждения легче заметить, а корзина позволит восстановить файлы в случае ошибки).
-3. **Всегда работайте с копией своих данных!** Разработчик тщательно проверил все возможные конфигурации, но риск не равен нулю. Сначала запустите программу на дубликате хранилища, убедитесь, что всё работает как надо, и только потом применяйте к оригиналу.
+3. **Всегда работайте с копией своих данных!** Разработчик тщательно проверил все возможные конфигурации, но существует небольшой шанс упущения. Сначала запустите программу на дубликате хранилища, убедитесь, что всё работает как надо, и только потом применяйте к оригиналу.
+> **Самый надёжный способ не ошибиться Вам и не дать ошибиться программе – всегда работать с дубликатом/копией хранилища, а после правильной отработки просто заменить исходное хранилище на получившееся.**
 
 ---
 
@@ -201,18 +230,41 @@ The program is distributed under the MIT license. Use at your own risk.
 
 ### Настройки
 
-В начале файла найдите блок:
+В начале файла найдите блок настроек:
 
 ```python
 input_path = r""          # папка с исходными WebP (пусто = текущая папка)
 output_path = r""         # папка для JPG (пусто = создаст подпапку "converted")
 jpg_quality = 85          # качество JPEG (1-100)
+
+# ⚠️ ОПАСНЫЕ ОПЦИИ: Удалять исходные WebP?
+delete_original = False        # установите True, чтобы включить удаление (настоятельно рекомендуется False)?
+delete_on_skip = False         # удалять исходный WebP при пропуске (только если delete_original=True)?
+delete_on_rename = False       # удалять исходный WebP при переименовании (только если delete_original=True)?
+
+# Способ удаления (используется только при delete_original=True)
+deletion_method = "recycle"    # "recycle" (в корзину) или "permanent" (безвозвратно)
+
+# Поведение при конфликте имён
+on_name_conflict = "ask"       # "skip", "rename" или "ask" (по умолчанию ask)
 ```
 - **input_path** – путь к папке с WebP. Если оставить пустым, используется текущая папка.
 
 - **output_path** – куда сохранять JPG. Если пусто, создаётся подпапка converted в исходной папке.
 
 - **jpg_quality** – качество JPEG (по умолчанию 85 – хороший баланс размера и качества).
+
+- **delete_original** – главный выключатель удаления. Если False, исходные файлы никогда не удаляются.
+
+- **delete_on_skip** – при delete_original=True удаляет исходный WebP, если конвертация была пропущена (файл уже существует в виде JPG). Логично включить, так как существующий JPG считается верным.
+
+- **delete_on_rename** – при delete_original=True удаляет исходный WebP, если конфликт разрешён переименованием (например, создан файл с номером). Логично включить, так как файл всё равно сконвертирован (хоть и с другим именем).
+
+- **deletion_method** – "recycle" (в корзину, требует send2trash) или "permanent" (безвозвратно). Рекомендуется "recycle".
+
+- **on_name_conflict** – поведение при конфликте имён (см. выше).
+
+Если delete_original = False, то delete_on_skip и delete_on_rename игнорируются (даже если установлены в True).
 
 
 ### Что делает программа
@@ -259,14 +311,15 @@ jpg_quality = 85          # качество JPEG (1-100)
 overkill_mode = False      # True = сканировать все подпапки
 exclude_folders = []       # список папок или относительных путей для исключения
 
-delete_original = False    # удалять исходные WebP после конвертации (по умолчанию False)
-delete_on_skip = False     # удалять исходные WebP при пропуске (конфликт имён) (по умолчанию False)
+delete_original = False    # удалять исходные WebP после конвертации (по умолчанию False)?
+delete_on_skip = False     # удалять исходные WebP при пропуске (только если delete_original=True)?
+delete_on_rename = False   # удалять исходные WebP при переименовании (только если delete_original=True)?
 
-deletion_method = "recycle"   # метод удаления: "recycle" (в корзину) или "permanent" (безвозвратно)
+deletion_method = "recycle"   # "recycle" (в корзину) или "permanent" (безвозвратно)
 on_recycle_error = "ask"      # действие при ошибке отправки в корзину: "ask", "permanent", "skip", "stop"
 
-save_in_place = False      # True = JPG сохранять рядом с WebP, False = все в одну папку (указанную, или в папку converted, если Вы оставили путь пустым.)
-on_name_conflict = "ask"   # "rename", "skip" или "ask" (по умолчанию ask)
+save_in_place = False      # True = JPG сохранять рядом с WebP, False = все в одну папку
+on_name_conflict = "ask"   # поведение при конфликте имени. "rename", "skip" или "ask" (по умолчанию ask)
 ```
 ### Пояснения
 - **overkill_mode** – если True, программа обойдёт все подпапки внутри input_path.
