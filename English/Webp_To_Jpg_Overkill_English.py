@@ -36,22 +36,21 @@ if not COLORAMA_AVAILABLE:
         BRIGHT = ''
         RESET_ALL = ''
     if not is_running_in_idle():
-        # If colorama is not installed and we are not in IDLE, suggest installation
+        # If colorama not installed and we're not in IDLE, suggest installation
         print("For colored output install colorama: pip install colorama")
 
 # ------------------------------------------------------------
 # Settings: paths and conversion parameters (you can change these)
 # ------------------------------------------------------------
 
-# ⚠️ When copying a Windows path, use a raw string - r"...",
+# ⚠️⚠️⚠️ When copying a Windows path, use a raw string - r"...",
 # where ... is your folder path copied from Windows. This prevents Python
 # from interpreting \U or any other character after a backslash as an escape sequence.
-# (Otherwise an error will definitely occur!)
+# (It will definitely happen otherwise!)
 
 input_path = r""               # folder with source WebP files (empty = current folder)
-output_path = r""              # folder for JPG results (empty = creates subfolder, see below)
+output_path = r""              # folder for JPGs (empty = creates overkill_converted subfolder in the working folder)
 jpg_quality = 85               # JPEG quality (1-100, default 85)
-
 
 # ------------------------------------------------------------
 # OVERKILL mode (recursive processing of all subfolders)
@@ -67,7 +66,7 @@ overkill_mode = False           # False = only files directly in input_path; Tru
 # You can specify simple folder names (e.g., "backup", "old") or subpaths like "archive/2020".
 # All paths are interpreted relative to input_path. Examples:
 #   exclude_folders = ["temp", "private"]                    # skips any folders named "temp" or "private"
-#   exclude_folders = ["temp folder", "private data", "Do not enter", "Absolutely do not enter"]  # names with spaces (English/Russian examples)
+#   exclude_folders = ["temp folder", "private data", "Do not enter", "Absolutely do not enter"]  # names with spaces (Russian/English)
 #   exclude_folders = ["docs/old"]                           # skips the specific subfolder "docs/old"
 # When using Windows paths with backslashes, use raw strings or double backslashes:
 #   exclude_folders = ["docs/old", r"temp\backup", "archive\\2024"]  # all these variants will work
@@ -75,16 +74,21 @@ overkill_mode = False           # False = only files directly in input_path; Tru
 exclude_folders = []            # empty list = no exclusions
 
 # ⚠️⚠️⚠️ DANGEROUS OPTION: Delete original WebP files after successful conversion?
-# It is strongly recommended to keep this False and later delete files manually via Windows search (*.webp).
+# It is strongly recommended to keep False and later delete files manually via file search (e.g., in Windows: [*.webp]).
 # The developer learned this the hard way.
-# The deletion method (recycle bin or permanent) is set by the deletion_method variable below.
 delete_original = False
 
 # ⚠️⚠️⚠️ Delete original WebP if the file was skipped due to name conflict?
-# Default is False, because it's easy to rush and delete needed files.
-# Enable this option only if you are absolutely sure about your storage understanding. The developer burned himself on this.
+# Works only if delete_original = True.
+# Default is False for safety. But logically, if delete_original = True, you might want to set this True,
+# because the converted file already exists and you consider it correct. Hence the original is no longer needed.
 delete_on_skip = False
 
+# ⚠️⚠️⚠️ Delete original WebP if renaming was chosen during a name conflict?
+# Works only if delete_original = True.
+# Default is False for safety. But logically, if delete_original = True, you might want to set this True,
+# because the new file is still created, just renamed. So the original is no longer needed.
+delete_on_rename = False
 
 # ------------------------------------------------------------
 # Deletion settings (permanent or recycle bin)
@@ -97,7 +101,7 @@ deletion_method = "recycle"     # default recycle bin
 # Action when recycle bin error occurs (if recycle is used):
 #   "ask"        - ask the user (default)
 #   "permanent"  - delete permanently
-#   "skip"       - skip the file (do not delete, do not convert?)
+#   "skip"       - skip the file (do not delete)
 #   "stop"       - stop the program
 on_recycle_error = "ask"
 
@@ -115,6 +119,65 @@ save_in_place = False
 #   "skip"   - skip conversion of this file
 #   "ask"    - ask the user what to do (default)
 on_name_conflict = "ask"
+
+# ------------------------------------------------------------
+# Validate settings correctness
+# ------------------------------------------------------------
+def validate_settings():
+    errors = []
+    
+    # Check overkill_mode (must be bool)
+    if not isinstance(overkill_mode, bool):
+        errors.append(f"overkill_mode must be True or False, got: {overkill_mode} (type {type(overkill_mode).__name__})")
+    
+    # Check delete_original
+    if not isinstance(delete_original, bool):
+        errors.append(f"delete_original must be True or False, got: {delete_original} (type {type(delete_original).__name__})")
+    
+    # Check delete_on_skip
+    if not isinstance(delete_on_skip, bool):
+        errors.append(f"delete_on_skip must be True or False, got: {delete_on_skip} (type {type(delete_on_skip).__name__})")
+    
+    # Check delete_on_rename
+    if not isinstance(delete_on_rename, bool):
+        errors.append(f"delete_on_rename must be True or False, got: {delete_on_rename} (type {type(delete_on_rename).__name__})")
+    
+    # Check save_in_place
+    if not isinstance(save_in_place, bool):
+        errors.append(f"save_in_place must be True or False, got: {save_in_place} (type {type(save_in_place).__name__})")
+    
+    # Check jpg_quality (must be integer from 1 to 100)
+    if not isinstance(jpg_quality, int):
+        errors.append(f"jpg_quality must be an integer, got: {jpg_quality} (type {type(jpg_quality).__name__})")
+    elif not (1 <= jpg_quality <= 100):
+        errors.append(f"jpg_quality must be in range 1-100, got: {jpg_quality}")
+    
+    # Check deletion_method
+    valid_deletion = ["recycle", "permanent"]
+    if deletion_method not in valid_deletion:
+        errors.append(f"deletion_method must be one of {valid_deletion}, got: {deletion_method}")
+    
+    # Check on_recycle_error
+    valid_recycle_error = ["ask", "permanent", "skip", "stop"]
+    if on_recycle_error not in valid_recycle_error:
+        errors.append(f"on_recycle_error must be one of {valid_recycle_error}, got: {on_recycle_error}")
+    
+    # Check on_name_conflict
+    valid_conflict = ["skip", "rename", "ask"]
+    if on_name_conflict not in valid_conflict:
+        errors.append(f"on_name_conflict must be one of {valid_conflict}, got: {on_name_conflict}")
+    
+    return errors
+
+# Perform validation
+validation_errors = validate_settings()
+if validation_errors:
+    print(f"{Fore.RED}❌ Errors found in settings:{Style.RESET_ALL}")
+    for err in validation_errors:
+        print(f"   {Fore.RED}• {err}{Style.RESET_ALL}")
+    print()
+    input(f"{Fore.CYAN}Press Enter to exit...{Style.RESET_ALL}")
+    sys.exit(1)
 
 # ------------------------------------------------------------
 # Check for send2trash library for recycle bin
@@ -136,7 +199,7 @@ if deletion_method == "recycle":
 # ------------------------------------------------------------
 def delete_file(file_path):
     """Deletes a file according to deletion_method and on_recycle_error settings."""
-    global deletion_method  # may change if user chooses permanent deletion on error
+    global deletion_method  # may change if user chooses "permanent" on error
     
     if deletion_method == "permanent":
         try:
@@ -301,15 +364,18 @@ def get_next_number(existing_list):
     return max_num + 1
 
 # ------------------------------------------------------------
-# Helper function: show conflict information
+# Helper function: show conflict information (improved readability)
 # ------------------------------------------------------------
 def show_conflict_info(base_name, existing_list, new_file_size, dest_dir):
-    print(f"\n{Fore.YELLOW}⚠️ Name conflict for file {base_name}.jpg{Style.RESET_ALL}")
+    print(f"\n{Fore.YELLOW}⚠️ Name conflict for file {Fore.CYAN}{Style.BRIGHT}{base_name}.jpg{Style.RESET_ALL}")
     print(f"   Target folder: {dest_dir}")
-    print(f"   New file size: {format_size(new_file_size)}")
-    print(f"   Existing files in this folder with similar names:")
+    print()
+    # Alignment: "New file:" (9 chars) + 5 spaces = 14 chars,
+    # "Existing:" (9 chars) + 5 spaces = 14 chars.
+    # File names start at the same position.
+    print(f"   {Fore.CYAN}New file:     {Style.RESET_ALL}{Fore.CYAN}{Style.BRIGHT}{base_name}.jpg{Style.RESET_ALL} (source WebP: {format_size(new_file_size)})")
     for item in sorted(existing_list, key=lambda x: x['number']):
-        print(f"     - {item['name']} ({format_size(item['size'])})")
+        print(f"   {Fore.CYAN}Existing:     {Style.RESET_ALL}{Fore.CYAN}{item['name']}{Style.RESET_ALL} ({format_size(item['size'])})")
     print()
 
 # ------------------------------------------------------------
@@ -352,6 +418,12 @@ def print_folder_tree(folder_paths, root_display_name):
 # ------------------------------------------------------------
 # Preparation
 # ------------------------------------------------------------
+# If input_path is not empty, check if it exists
+if input_path != "" and not os.path.exists(input_path):
+    print(f"{Fore.RED}❌ Specified folder does not exist: {input_path}{Style.RESET_ALL}")
+    input("\nPress Enter to exit...")
+    sys.exit(1)
+
 if input_path == "":
     input_path = os.getcwd()
 
@@ -371,7 +443,7 @@ total_files = len(webp_files)
 if total_files == 0:
     print(f"{Fore.RED}❌ No WebP files found. Program finished.{Style.RESET_ALL}")
     input("\nPress Enter to exit...")
-    exit()
+    sys.exit()
 
 print(f"{Fore.BLUE}📊 WebP files found:{Style.RESET_ALL} {total_files}")
 
@@ -424,10 +496,14 @@ if overkill_mode:
     if delete_original:
         print()
         print(f"{Fore.RED}❗❗❗ WARNING: DELETE ORIGINAL FILES ENABLED! WebP files WILL BE DELETED after conversion.{Style.RESET_ALL}")
-    if delete_on_skip:
-        print(f"{Fore.RED}❗❗❗ WARNING: DELETE ON SKIP ENABLED! WebP files will be deleted if conversion is skipped due to name conflict.{Style.RESET_ALL}")
+    # Show warnings for delete_on_skip and delete_on_rename only if delete_original = True
+    if delete_original:
+        if delete_on_skip:
+            print(f"{Fore.RED}❗❗❗ WARNING: DELETE ON SKIP ENABLED! WebP files will be deleted if conversion is skipped due to name conflict.{Style.RESET_ALL}")
+        if delete_on_rename:
+            print(f"{Fore.RED}❗❗❗ WARNING: DELETE ON RENAME ENABLED! WebP files will be deleted if renaming is chosen on conflict.{Style.RESET_ALL}")
     print()
-    # Recommendation to run in command prompt, not IDLE
+    # Recommendation to run in command prompt, not in IDLE
     if is_running_in_idle():
         print(f"{Fore.YELLOW}💡 It is recommended to run the program by double-clicking (in command prompt),{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}   so that colored output displays correctly.{Style.RESET_ALL}")
@@ -464,7 +540,9 @@ for idx, src_path in enumerate(webp_files, start=1):
     
     # We'll store the final destination path
     dst_path = None
-    action_performed = False  # flag indicating file was handled (converted or skipped)
+    action_performed = False  # flag that file is already handled (skipped or renamed)
+    was_conflict = bool(existing_jpgs)  # remember if there was a conflict
+    was_renamed = False       # flag that renaming was chosen
     
     if existing_jpgs:
         # Add a blank line for visual separation between conflicts of different files
@@ -474,7 +552,7 @@ for idx, src_path in enumerate(webp_files, start=1):
             skipped_count += 1
             action_performed = True
             # If delete_on_skip is enabled
-            if delete_on_skip:
+            if delete_original and delete_on_skip:
                 success, error = delete_file(src_path)
                 if success:
                     deleted_count += 1
@@ -482,10 +560,6 @@ for idx, src_path in enumerate(webp_files, start=1):
                     print(f"{Fore.CYAN}🗑️ Source file {filename} deleted/sent to recycle bin (skip due to conflict){Style.RESET_ALL}")
                 else:
                     print(f"{Fore.RED}❌ Could not delete {filename}: {error}{Style.RESET_ALL}")
-            else:
-                # Optionally output skip info
-                # print(f"{Fore.YELLOW}⏭️ Skipped {filename} (JPG already exists){Style.RESET_ALL}")
-                pass
         elif on_name_conflict == "rename":
             # Show conflict info
             show_conflict_info(base_name, existing_jpgs, original_size, dest_dir)
@@ -493,10 +567,10 @@ for idx, src_path in enumerate(webp_files, start=1):
             new_filename = f"{base_name} ({next_num}).jpg"
             dst_path = os.path.join(dest_dir, new_filename)
             print(f"{Fore.CYAN}   Will create file: {new_filename}{Style.RESET_ALL}")
-            action_performed = False  # proceed to conversion
+            action_performed = False  # will convert with new name
+            was_renamed = True
         elif on_name_conflict == "ask":
             show_conflict_info(base_name, existing_jpgs, original_size, dest_dir)
-            # Ask user
             while True:
                 print(f"{Fore.YELLOW}Choose action:{Style.RESET_ALL}")
                 print("   1 - Rename and save (create file with number)")
@@ -509,12 +583,13 @@ for idx, src_path in enumerate(webp_files, start=1):
                     dst_path = os.path.join(dest_dir, new_filename)
                     print(f"{Fore.CYAN}   Will create file: {new_filename}{Style.RESET_ALL}")
                     action_performed = False
+                    was_renamed = True
                     break
                 elif choice == '2':
                     skipped_count += 1
                     action_performed = True
                     # If delete_on_skip is enabled
-                    if delete_on_skip:
+                    if delete_original and delete_on_skip:
                         success, error = delete_file(src_path)
                         if success:
                             deleted_count += 1
@@ -528,19 +603,20 @@ for idx, src_path in enumerate(webp_files, start=1):
                 else:
                     print(f"{Fore.RED}Invalid input. Please enter 1, 2 or 3.{Style.RESET_ALL}")
         else:
-            # Unknown value - treat as rename
+            # Unknown value – treat as rename (or skip? but better as rename)
             show_conflict_info(base_name, existing_jpgs, original_size, dest_dir)
             next_num = get_next_number(existing_jpgs)
             new_filename = f"{base_name} ({next_num}).jpg"
             dst_path = os.path.join(dest_dir, new_filename)
             print(f"{Fore.CYAN}   Will create file: {new_filename}{Style.RESET_ALL}")
             action_performed = False
+            was_renamed = True
     else:
         # No conflict
         dst_path = os.path.join(dest_dir, base_name + ".jpg")
         action_performed = False
     
-    # If file was not skipped, convert it
+    # If file not skipped and destination path is set, convert it
     if not action_performed and dst_path is not None:
         try:
             with Image.open(src_path) as img:
@@ -553,7 +629,17 @@ for idx, src_path in enumerate(webp_files, start=1):
             total_converted_size += converted_size
             converted_count += 1
             
+            # Decision whether to delete source file
+            should_delete = False
             if delete_original:
+                if was_conflict and was_renamed:
+                    # On conflict and renaming, respect delete_on_rename
+                    should_delete = delete_on_rename
+                else:
+                    # No conflict – just delete_original
+                    should_delete = True
+            
+            if should_delete:
                 success, error = delete_file(src_path)
                 if success:
                     deleted_count += 1
