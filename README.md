@@ -4,6 +4,14 @@ English (на русском будет тоже, см. в этом же readme 
 
 A batch conversion tool for WebP images to JPEG, preserving original resolution, displaying statistics, and offering flexible settings.
 
+## About the Project
+
+> Dear community! This code was generated with AI assistance under my close guidance. I designed all the logic and structure myself, and I independently performed all the work on improvement, testing, and bug fixing.
+>
+> Initially, this project was intended for personal use, but since no similar programs were found online, I decided to release this program to the public in the hope that it will be useful to you.
+>
+> I'd appreciate your feedback and suggestions via Issues and Pull Requests. If something doesn't work as expected, or if you have ideas on how to improve the program — let's polish it together.
+
 ## Two Versions
 
 - **Standard version (`Webp_To_Jpg_English.py`)** – works only with files in the specified folder (no subfolders).
@@ -202,6 +210,14 @@ The program is distributed under the MIT license. Use at your own risk.
 # Конвертер WebP в JPEG
 
 Программа для пакетной конвертации изображений WebP в JPEG с сохранением исходного разрешения, подсчётом статистики и гибкими настройками.
+
+> ## О проекте
+> 
+> Уважаемое сообщество! Данный код был сгенерирован ИИ под моим чутким руководством. Всю логику и структуру я придумал сам, а также всю работу по улучшению, тестированию и исправлению ошибок я провёл самостоятельно.
+> 
+> Изначально этот проект рассчитывался для домашнего использования, но поскольку аналогичных программ в сети найдено не было, я решил выложить данную программу в открытый доступ, в надежде что она будет вам полезна.
+> 
+> Буду благодарен вашим замечаниям и предложениям через Issues и Pull Requests. Если что-то работает не так или Вы знаете, как можно сделать программу лучше - давайте вместе доведём её до ума.
 
 ## Две версии программы
 
