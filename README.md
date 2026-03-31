@@ -202,6 +202,22 @@ on_name_conflict = "ask"         # ask on conflict
 > **It is HIGHLY RECOMMENDED to work on a DUPLICATE/COPY of your storage.**
 > After verifying that everything is correct, simply replace the original with the modified copy (delete the original and paste the new folder).
 
+### Third‑Party Licenses
+
+This project uses the following open‑source libraries:
+
+- **[Pillow](https://github.com/python-pillow/Pillow)** – HPND License  
+  Copyright (c) 1995–2011 Fredrik Lundh, 2010–2023 Alex Clark and contributors  
+  ([Full license text](https://github.com/python-pillow/Pillow/blob/main/LICENSE))
+
+- **[colorama](https://github.com/tartley/colorama)** – BSD‑3‑Clause License  
+  Copyright (c) 2010 Jonathan Hartley  
+  ([Full license text](https://github.com/tartley/colorama/blob/master/LICENSE.txt))
+
+- **[send2trash](https://github.com/hsoft/send2trash)** – BSD‑3‑Clause License  
+  Copyright (c) 2013 Virgil Dupras  
+  ([Full license text](https://github.com/hsoft/send2trash/blob/master/LICENSE))
+
 ### License
 The program is distributed under the MIT license. Use at your own risk.
 
@@ -401,6 +417,22 @@ on_name_conflict = "ask"         # спрашивать при конфликт�
 > Разработчик тщательно проверил все возможные комбинации настроек, но может случиться так, что что-то было упущено. Шанс на это крайне мал, но не равен нулю.  
 > **НАСТОЯТЕЛЬНО РЕКОМЕНДУЕМ работать именно с ДУБЛИКАТОМ/КОПИЕЙ хранилища.**  
 > После проверки, что всё сделано правильно, просто замените оригинал на изменённую копию (удалите оригинал и вставьте новую папку).
+
+### Лицензии сторонних библиотек
+
+В этом проекте используются следующие библиотеки с открытым исходным кодом:
+
+- **[Pillow](https://github.com/python-pillow/Pillow)** – лицензия HPND  
+  Copyright (c) 1995–2011 Fredrik Lundh, 2010–2023 Alex Clark и соавторы  
+  ([Полный текст лицензии](https://github.com/python-pillow/Pillow/blob/main/LICENSE))
+
+- **[colorama](https://github.com/tartley/colorama)** – лицензия BSD‑3‑Clause  
+  Copyright (c) 2010 Jonathan Hartley  
+  ([Полный текст лицензии](https://github.com/tartley/colorama/blob/master/LICENSE.txt))
+
+- **[send2trash](https://github.com/hsoft/send2trash)** – лицензия BSD‑3‑Clause  
+  Copyright (c) 2013 Virgil Dupras  
+  ([Полный текст лицензии](https://github.com/hsoft/send2trash/blob/master/LICENSE))
 
 ### Лицензия
 Программа распространяется под лицензией MIT. Используйте на свой страх и риск.
