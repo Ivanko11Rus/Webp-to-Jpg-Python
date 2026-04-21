@@ -43,14 +43,18 @@ if not COLORAMA_AVAILABLE:
 # Settings: paths and conversion parameters (you can change these)
 # ------------------------------------------------------------
 
+# ------------------------------------------------------------
+# Settings: paths and conversion parameters (you can change these)
+# ------------------------------------------------------------
+
 # ⚠️⚠️⚠️ When copying a Windows path, use a raw string - r"...",
 # where ... is your folder path copied from Windows. This prevents Python
 # from interpreting \U or any other character after a backslash as an escape sequence.
 # (It will definitely happen otherwise!)
 
 input_path = r""               # folder with source WebP files (empty = current folder)
-output_path = r""              # folder for JPGs (empty = creates "converted" subfolder in the working folder (input_path))
-jpg_quality = 85               # JPEG quality (1-100, default 85)
+output_path = r""              # folder for JPG (empty = creates a "converted" subfolder in the folder being processed (input_path))
+jpg_quality = 85               # JPEG quality (1-100, default 85, good balance between quality and file size)
 
 # ⚠️⚠️⚠️ DANGEROUS OPTION: Delete original WebP files after successful conversion?
 # It is strongly recommended to keep False and later delete files manually via file search (e.g., in Windows: [*.webp]).
